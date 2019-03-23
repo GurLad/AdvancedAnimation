@@ -2,18 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 /*
- * Version 2.2, 20/03/2019
- * 
- * THIS IS IMPORTANT!
- *
- * AdvancedAnimation allows you to easily add and interact with animations. Basically, you give it
- * every major frame (in the form of a copy of the object, but only with transform), the speed of
- * the transition between them and the style (ex. if it's accelrating, use SlowFastCurve). The
- * AdvancedAnimation code does all the rest. In addition, you can easily interact with every
- * variable of it through code, so if you want to change its speed/frames midway through it, you can
- * do that (Also, I don't know how to use any other animation tool, so bear with me).
+ * Version 2.2.1, 23/03/2019
  */
 public enum Style { None, SinCurve, SlowFastCurve, FastSlowCurve }
+/// <summary>
+/// AdvancedAnimation allows you to easily add and interact with animations. Basically, you give it
+/// every major frame (in the form of a copy of the object, but only with transform), the speed of
+/// the transition between them and the style (ex. if it's accelrating, use SlowFastCurve). The
+/// AdvancedAnimation code does all the rest. In addition, you can easily interact with every
+/// variable of it through code, so if you want to change its speed/frames midway through it, you can
+/// do that (Also, I don't know how to use any other animation tool, so bear with me).
+/// </summary>
 public class AdvancedAnimation : MonoBehaviour
 {
     [Header("Base")]
@@ -45,8 +44,8 @@ public class AdvancedAnimation : MonoBehaviour
     [HideInInspector]
     public bool FinishedHalf = false;
     private List<Transform> Parts;
-    private List<List<Transform>> AnimationParts; //AP[StepID][PartPointer]
-    private List<List<int>> Pointers; //Pointers[StepID][MatchingPartID] = Part Pointer ^
+    private List<List<Transform>> AnimationParts; //AnimationParts[StepID][PartPointer]
+    private List<List<int>> Pointers; //Pointers[StepID][MatchingPartID] = PartPointer ^
     // Gets all parts and sets pointers
     void Start()
     {
@@ -116,7 +115,7 @@ public class AdvancedAnimation : MonoBehaviour
                 Quaternion FinalValue = AnimationParts[NextStep][Pointers[NextStep][i]].localRotation;
                 if (BaseValue != FinalValue || AffectAll)
                 {
-                    Parts[i].localRotation = Quaternion.Slerp(BaseValue, FinalValue, Count);//new Quaternion(BaseValue.x * (1 - Count) + FinalValue.x * Count, BaseValue.y * (1 - Count) + FinalValue.y * Count, BaseValue.z * (1 - Count) + FinalValue.z * Count, BaseValue.w * (1 - Count) + FinalValue.w * Count);//BaseValue * (1 - Count) + FinalValue * Count;
+                    Parts[i].localRotation = Quaternion.Slerp(BaseValue, FinalValue, Count);//new Quaternion(BaseValue.x * (1 - Count) + FinalValue.x * Count, BaseValue.y * (1 - Count) + FinalValue.y * Count, BaseValue.z * (1 - Count) + FinalValue.z * Count, BaseValue.w * (1 - Count) + FinalValue.w * Count);
                 }
                 if (AffectPosition)
                 {
@@ -124,7 +123,7 @@ public class AdvancedAnimation : MonoBehaviour
                     Vector3 FinalValue2 = AnimationParts[NextStep][Pointers[NextStep][i]].localPosition;
                     if (BaseValue2 != FinalValue2 || AffectAll)
                     {
-                        Parts[i].localPosition = new Vector3(BaseValue2.x * (1 - Count) + FinalValue2.x * Count, BaseValue2.y * (1 - Count) + FinalValue2.y * Count, BaseValue2.z * (1 - Count) + FinalValue2.z * Count);//BaseValue * (1 - Count) + FinalValue * Count;
+                        Parts[i].localPosition = new Vector3(BaseValue2.x * (1 - Count) + FinalValue2.x * Count, BaseValue2.y * (1 - Count) + FinalValue2.y * Count, BaseValue2.z * (1 - Count) + FinalValue2.z * Count);
                     }
                 }
             }
