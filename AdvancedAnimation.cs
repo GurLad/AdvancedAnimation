@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 /*
- * Version 2.2.1, 23/03/2019
+ * Version 2.2.2, 02/04/2019
  */
 public enum Style { None, SinCurve, SlowFastCurve, FastSlowCurve }
 /// <summary>
@@ -28,6 +28,7 @@ public class AdvancedAnimation : MonoBehaviour
     public bool AffectMain = false;
     public bool OneWay;
     public bool ActivateOnStart = false;
+    public string FindMainByName;
     //You probably don't want to touch these
     [HideInInspector]
     public int PreviousGoal = 0;
@@ -49,6 +50,21 @@ public class AdvancedAnimation : MonoBehaviour
     // Gets all parts and sets pointers
     void Start()
     {
+        if (Main == null)
+        {
+            if (FindMainByName == "")
+            {
+                throw new System.Exception("You need something to animate (assign the Main variable or use FindMainByName).");
+            }
+            else
+            {
+                Main = GameObject.Find(FindMainByName);
+                if (Main == null)
+                {
+                    throw new System.Exception("Main not found (did you enter its name correctly?).");
+                }
+            }
+        }
         Parts = new List<Transform>();
         AnimationParts = new List<List<Transform>>();
         Pointers = new List<List<int>>();
