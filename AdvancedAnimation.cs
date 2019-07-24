@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 /*
- * Version 2.2.2, 02/04/2019
+ * Version 2.2.3, 24/07/2019
  */
 public enum Style { None, SinCurve, SlowFastCurve, FastSlowCurve }
 /// <summary>
@@ -26,6 +26,7 @@ public class AdvancedAnimation : MonoBehaviour
     public bool AffectAll = false;
     public bool AffectPosition = false;
     public bool AffectMain = false;
+    public bool AffectActive = false;
     public bool OneWay;
     public bool ActivateOnStart = false;
     public string FindMainByName;
@@ -68,12 +69,12 @@ public class AdvancedAnimation : MonoBehaviour
         Parts = new List<Transform>();
         AnimationParts = new List<List<Transform>>();
         Pointers = new List<List<int>>();
-        Parts.AddRange(Main.GetComponentsInChildren<Transform>());
+        Parts.AddRange(Main.GetComponentsInChildren<Transform>(true));
         if (!AffectMain) Parts.Remove(Main.transform);
         for (int i = 0; i < AnimationSteps.Count; i++)
         {
             AnimationParts.Add(new List<Transform>());
-            AnimationParts[i].AddRange(AnimationSteps[i].GetComponentsInChildren<Transform>());
+            AnimationParts[i].AddRange(AnimationSteps[i].GetComponentsInChildren<Transform>(true));
             if (!AffectMain) AnimationParts[i].Remove(AnimationSteps[i].transform);
         }
         for (int j = 0; j < Parts.Count; j++)
@@ -184,6 +185,19 @@ public class AdvancedAnimation : MonoBehaviour
             {
                 PreviousGoal = GoalStep;
                 GoalStep = LoopTo;
+            }
+            for (int i = 0; i < Parts.Count; i++)
+            {
+                try
+                {
+                    bool BaseValue = AnimationParts[PreviousStep][Pointers[PreviousStep][i]].gameObject.activeSelf;
+                    bool FinalValue = AnimationParts[NextStep][Pointers[NextStep][i]].gameObject.activeSelf;
+                    if (BaseValue != FinalValue || AffectAll)
+                    {
+                        Parts[i].gameObject.SetActive(FinalValue);
+                    }
+                }
+                catch { }
             }
         }
         Animate();
