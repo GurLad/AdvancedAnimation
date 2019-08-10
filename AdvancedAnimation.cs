@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 /*
- * Version 2.2.3, 24/07/2019
+ * Version 2.3.0, 10/08/2019
  */
 public enum Style { None, SinCurve, SlowFastCurve, FastSlowCurve }
 /// <summary>
@@ -45,9 +45,17 @@ public class AdvancedAnimation : MonoBehaviour
     public float Count;
     [HideInInspector]
     public bool FinishedHalf = false;
+    [HideInInspector]
+    public List<IAdvancedAnimationListener> AdvancedAnimationListeners { get; private set; }
+    [HideInInspector]
+    public bool Ordered = false;
     private List<Transform> Parts;
     private List<List<Transform>> AnimationParts; //AnimationParts[StepID][PartPointer]
     private List<List<int>> Pointers; //Pointers[StepID][MatchingPartID] = PartPointer ^
+    private void Awake()
+    {
+        AdvancedAnimationListeners = new List<IAdvancedAnimationListener>();
+    }
     // Gets all parts and sets pointers
     void Start()
     {
@@ -150,18 +158,27 @@ public class AdvancedAnimation : MonoBehaviour
     }
     void Update()
     {
+        if (!Ordered)
+        {
+            DoOneFrame();
+        }
+    }
+    public void DoOneFrame()
+    {
         if (!Active) return;
         Count += Time.deltaTime * Speed[PreviousStep];
         if (Count >= 1)
         {
+            Count = 1;
+            Animate();
+            Count = 0;
             if (NextStep == 0 && LoopTo == -1)
             {
                 Active = false;
-                Count = 0;
+                //Count = 0;
                 return;
             }
             PreviousStep = NextStep;
-            Count = 0;
             if (NextStep < GoalStep) NextStep++;
             else if (NextStep > GoalStep)
             {
@@ -199,6 +216,7 @@ public class AdvancedAnimation : MonoBehaviour
                 }
                 catch { }
             }
+            AdvancedAnimationListeners.ForEach(AAL => AAL.OnStepChange(NextStep));
         }
         Animate();
     }
