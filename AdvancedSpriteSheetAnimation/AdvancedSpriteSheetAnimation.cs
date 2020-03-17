@@ -5,7 +5,7 @@ using UnityEngine;
 /// This is my code for 2D animations (AdvancedAnimation's counterpart). This one allows you
 /// to assign multiple animations and change which one is currently playing through different
 /// scripts. You can also use SpriteSheetAnimator for single animations.
-/// Version 1.0, 16/03/2020
+/// Version 1.1, 17/03/2020
 /// </summary>
 public class AdvancedSpriteSheetAnimation : MonoBehaviour
 {
@@ -20,6 +20,10 @@ public class AdvancedSpriteSheetAnimation : MonoBehaviour
     private float count = 0;
     private int currentAnimation = 0;
     private int currentFrame = 0;
+    private void Reset()
+    {
+        renderer = GetComponent<SpriteRenderer>();
+    }
     private void Start()
     {
         if (renderer == null)
@@ -57,9 +61,18 @@ public class AdvancedSpriteSheetAnimation : MonoBehaviour
             }
         }
     }
-    public void Activate(int? animation = null)
+    /// <summary>
+    /// Switches to the specified animation.
+    /// </summary>
+    /// <param name="animation">Animation ID to change to.</param>
+    /// <param name="forceRestart">Restart the animation if the new ID is equal to the current one.</param>
+    public void Activate(int animation, bool forceRestart = false)
     {
-        currentAnimation = animation ?? currentAnimation;
+        if (!forceRestart && currentAnimation == animation)
+        {
+            return;
+        }
+        currentAnimation = animation;
         speed = Animations[currentAnimation].Speed > 0 ? Animations[currentAnimation].Speed : BaseSpeed;
         loop = Animations[currentAnimation].Loop;
         currentFrame = 0;
@@ -67,12 +80,22 @@ public class AdvancedSpriteSheetAnimation : MonoBehaviour
         Active = true;
         renderer.sprite = Animations[currentAnimation].Frames[currentFrame];
     }
-    public void Activate(string animationName)
+    /// <summary>
+    /// Switches to the specified animation.
+    /// </summary>
+    /// <param name="animationName">Name of the animation to switch to.</param>
+    /// <param name="forceRestart">Restart the animation if the new animation is equal to the current one.</param>
+    /// <exception cref="System.Exception">No matching animation</exception>
+    public void Activate(string animationName, bool forceRestart = false)
     {
         int newID = Animations.FindIndex(a => a.Name == animationName);
         if (newID < 0)
         {
             throw new System.Exception("No matching animation!");
+        }
+        if (!forceRestart && currentAnimation == newID)
+        {
+            return;
         }
         currentAnimation = newID;
         speed = Animations[currentAnimation].Speed > 0 ? Animations[currentAnimation].Speed : BaseSpeed;
@@ -81,5 +104,21 @@ public class AdvancedSpriteSheetAnimation : MonoBehaviour
         count = 0;
         Active = true;
         renderer.sprite = Animations[currentAnimation].Frames[currentFrame];
+    }
+    /// <summary>
+    /// Restarts the current animation.
+    /// </summary>
+    public void Restart()
+    {
+        currentFrame = 0;
+        count = 0;
+        Active = true;
+        renderer.sprite = Animations[currentAnimation].Frames[currentFrame];
+    }
+    [ContextMenu("Assign first frame to renderer")]
+    public void EditorPreview()
+    {
+        Animations[0].Split();
+        renderer.sprite = Animations[0].Frames[0];
     }
 }
