@@ -33,7 +33,7 @@ public class AdvancedSpriteSheetAnimation : MonoBehaviour
         Animations.ForEach(a => a.Split());
         if (ActivateOnStart)
         {
-            Activate(0);
+            Activate(0, true);
         }
     }
     private void Update()
