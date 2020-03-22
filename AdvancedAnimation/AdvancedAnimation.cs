@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 /*
- * Version 2.3.0, 10/08/2019
+ * Version 3.0.0, 22/03/2020
  */
-public enum Style { None, SinCurve, SlowFastCurve, FastSlowCurve }
 /// <summary>
 /// AdvancedAnimation allows you to easily add and interact with animations. Basically, you give it
 /// every major frame (in the form of a copy of the object, but only with transform), the speed of
@@ -15,19 +14,30 @@ public enum Style { None, SinCurve, SlowFastCurve, FastSlowCurve }
 /// </summary>
 public class AdvancedAnimation : MonoBehaviour
 {
+    public enum Style { None, SinCurve, SlowFastCurve, FastSlowCurve }
+    public enum EReturnMode { BackAndForth, FirstIsLast, NoReturn }
     [Header("Base")]
     public GameObject Main;
-    public List<GameObject> AnimationSteps;
-    public float[] Speed;
-    public Style[] Styles;
+    public List<AdvancedAnimationFrame> AnimationSteps;
     [Header("Modifiers")]
     public int LoopTo = -1;
-    public bool ImmidiateReturn = false;
-    public bool AffectAll = false;
+    /// <summary>
+    /// When the animation ends:
+    /// BackAndForth - replay it backwards.
+    /// FirstIsLast - return to the first frame.
+    /// NoReturn - do nothing.
+    /// </summary>
+    [Tooltip("When the animation ends:\nBackAndForth - replay it backwards.\nFirstIsLast - return to the first frame.\nNoReturn - do nothing.")]
+    public EReturnMode ReturnMode;
+    [Header("Affects")]
     public bool AffectPosition = false;
-    public bool AffectMain = false;
+    [Tooltip("Changes objects' active state based on the next frame.")]
     public bool AffectActive = false;
-    public bool OneWay;
+    [Tooltip("Affects the parent of the animation (only if it has the same name as Main).")]
+    public bool AffectMain = false;
+    [Tooltip("Affects every part in the animation, including parts that didn't change.")]
+    public bool AffectAll = false;
+    [Header("Miscellaneous")]
     public bool ActivateOnStart = false;
     public string FindMainByName;
     //You probably don't want to touch these
@@ -82,8 +92,8 @@ public class AdvancedAnimation : MonoBehaviour
         for (int i = 0; i < AnimationSteps.Count; i++)
         {
             AnimationParts.Add(new List<Transform>());
-            AnimationParts[i].AddRange(AnimationSteps[i].GetComponentsInChildren<Transform>(true));
-            if (!AffectMain) AnimationParts[i].Remove(AnimationSteps[i].transform);
+            AnimationParts[i].AddRange(AnimationSteps[i].Step.GetComponentsInChildren<Transform>(true));
+            if (!AffectMain) AnimationParts[i].Remove(AnimationSteps[i].Step.transform);
         }
         for (int j = 0; j < Parts.Count; j++)
         {
@@ -123,7 +133,7 @@ public class AdvancedAnimation : MonoBehaviour
         //End debug
         if (ActivateOnStart)
         {
-            StartAnimations();
+            Activate();
         }
     }
     void Animate()
@@ -133,9 +143,9 @@ public class AdvancedAnimation : MonoBehaviour
             float BackupCount = Count;
             try
             {
-                if (Styles[PreviousStep] == Style.SinCurve) Count = -(Mathf.Sin(Count * Mathf.PI + Mathf.PI / 2)) / 2 + 0.5f;
-                else if (Styles[PreviousStep] == Style.SlowFastCurve) Count = Mathf.Pow(Count, 2);
-                else if (Styles[PreviousStep] == Style.FastSlowCurve) Count = Mathf.Pow(Count, 0.5f);
+                if (AnimationSteps[PreviousStep].Style == Style.SinCurve) Count = -(Mathf.Sin(Count * Mathf.PI + Mathf.PI / 2)) / 2 + 0.5f;
+                else if (AnimationSteps[PreviousStep].Style == Style.SlowFastCurve) Count = Mathf.Pow(Count, 2);
+                else if (AnimationSteps[PreviousStep].Style == Style.FastSlowCurve) Count = Mathf.Pow(Count, 0.5f);
                 Quaternion BaseValue = AnimationParts[PreviousStep][Pointers[PreviousStep][i]].localRotation;
                 Quaternion FinalValue = AnimationParts[NextStep][Pointers[NextStep][i]].localRotation;
                 if (BaseValue != FinalValue || AffectAll)
@@ -166,7 +176,7 @@ public class AdvancedAnimation : MonoBehaviour
     public void DoOneFrame()
     {
         if (!Active) return;
-        Count += Time.deltaTime * Speed[PreviousStep];
+        Count += Time.deltaTime * AnimationSteps[PreviousStep].Speed;
         if (Count >= 1)
         {
             Count = 1;
@@ -182,13 +192,13 @@ public class AdvancedAnimation : MonoBehaviour
             if (NextStep < GoalStep) NextStep++;
             else if (NextStep > GoalStep)
             {
-                if (OneWay)
+                if (ReturnMode == EReturnMode.NoReturn)
                 {
                     FinishedHalf = true;
                     Active = false;
                 }
                 NextStep--;
-                if (ImmidiateReturn)
+                if (ReturnMode == EReturnMode.FirstIsLast)
                 {
                     if (LoopTo != -1) NextStep = LoopTo;
                     else NextStep = 0;
@@ -220,7 +230,7 @@ public class AdvancedAnimation : MonoBehaviour
         }
         Animate();
     }
-    public void StartAnimations(bool BaseOnCurrent = false)
+    public void Activate(bool BaseOnCurrent = false)
     {
         if (Active) return;
         GoalStep = AnimationSteps.Count - 1;
