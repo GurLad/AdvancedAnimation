@@ -257,3 +257,11 @@ public class AdvancedAnimation : MonoBehaviour
         Active = true;
     }
 }
+
+[System.Serializable]
+public class AdvancedAnimationFrame
+{
+    public GameObject Step;
+    public float Speed;
+    public AdvancedAnimation.Style Style;
+}

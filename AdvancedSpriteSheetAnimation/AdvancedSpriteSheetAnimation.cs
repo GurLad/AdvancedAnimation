@@ -13,7 +13,7 @@ public class AdvancedSpriteSheetAnimation : MonoBehaviour
     public bool Active { get; private set; }
     public float BaseSpeed;
     public bool ActivateOnStart;
-    public List<IAdvancedSpriteSheetAnimationListener> Listeners;
+    public List<IAdvancedSpriteSheetAnimationListener> Listeners = new List<IAdvancedSpriteSheetAnimationListener>();
     [SerializeField]
     private SpriteRenderer renderer;
     private float speed;
@@ -27,7 +27,7 @@ public class AdvancedSpriteSheetAnimation : MonoBehaviour
     }
     private void Start()
     {
-        renderer = renderer != null ? renderer : GetComponent<Renderer>();
+        renderer = renderer != null ? renderer : GetComponent<SpriteRenderer>();
         Animations.ForEach(a => a.Split());
         if (ActivateOnStart)
         {
@@ -123,5 +123,26 @@ public class AdvancedSpriteSheetAnimation : MonoBehaviour
     {
         Animations[0].Split();
         renderer.sprite = Animations[0].Frames[0];
+    }
+}
+
+[System.Serializable]
+public class SpriteSheetData
+{
+    public string Name;
+    public Sprite SpriteSheet;
+    public int NumberOfFrames;
+    public float Speed = -1;
+    public bool Loop = false;
+    [HideInInspector]
+    public List<Sprite> Frames;
+    public void Split()
+    {
+        Frames = new List<Sprite>();
+        float Width = SpriteSheet.rect.width / NumberOfFrames;
+        for (int i = 0; i < NumberOfFrames; i++)
+        {
+            Frames.Add(Sprite.Create(SpriteSheet.texture, new Rect(Width * i, 0, Width, SpriteSheet.rect.height), new Vector2(0.5f, 0.5f)));
+        }
     }
 }
