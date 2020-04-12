@@ -5,7 +5,7 @@ using UnityEngine;
 /// This is my code for 2D animations (AdvancedAnimation's counterpart). This one allows you
 /// to assign multiple animations and change which one is currently playing through different
 /// scripts. You can also use SpriteSheetAnimator for single animations.
-/// Version 1.1, 17/03/2020
+/// Version 1.2, 12/04/2020
 /// </summary>
 public class AdvancedSpriteSheetAnimation : MonoBehaviour
 {
@@ -13,6 +13,7 @@ public class AdvancedSpriteSheetAnimation : MonoBehaviour
     public bool Active { get; private set; }
     public float BaseSpeed;
     public bool ActivateOnStart;
+    public List<IAdvancedSpriteSheetAnimationListener> Listeners;
     [SerializeField]
     private SpriteRenderer renderer;
     private float speed;
@@ -26,10 +27,7 @@ public class AdvancedSpriteSheetAnimation : MonoBehaviour
     }
     private void Start()
     {
-        if (renderer == null)
-        {
-            renderer = GetComponent<SpriteRenderer>();
-        }
+        renderer = renderer != null ? renderer : GetComponent<Renderer>();
         Animations.ForEach(a => a.Split());
         if (ActivateOnStart)
         {
@@ -47,6 +45,7 @@ public class AdvancedSpriteSheetAnimation : MonoBehaviour
                 currentFrame++;
                 if (currentFrame >= Animations[currentAnimation].Frames.Count)
                 {
+                    Listeners.ForEach(a => a.FinishedAnimation(currentAnimation, Animations[currentAnimation].Name));
                     if (loop)
                     {
                         currentFrame = 0;
@@ -56,6 +55,10 @@ public class AdvancedSpriteSheetAnimation : MonoBehaviour
                         Active = false;
                         return;
                     }
+                }
+                else
+                {
+                    Listeners.ForEach(a => a.ChangedFrame(currentAnimation, Animations[currentAnimation].Name, currentFrame));
                 }
                 renderer.sprite = Animations[currentAnimation].Frames[currentFrame];
             }
