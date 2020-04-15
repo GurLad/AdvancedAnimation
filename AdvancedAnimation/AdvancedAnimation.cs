@@ -61,7 +61,6 @@ public class AdvancedAnimation : MonoBehaviour
             if (value)
             {
                 Activate();
-                active = true;
             }
             else
             {
@@ -273,6 +272,7 @@ public class AdvancedAnimation : MonoBehaviour
                 catch { }
             }
         }
+        active = true;
     }
 }
 
