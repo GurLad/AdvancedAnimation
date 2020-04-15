@@ -45,7 +45,6 @@ public class AdvancedSpriteSheetAnimation : MonoBehaviour
                 currentFrame++;
                 if (currentFrame >= Animations[currentAnimation].Frames.Count)
                 {
-                    Listeners.ForEach(a => a.FinishedAnimation(currentAnimation, Animations[currentAnimation].Name));
                     if (loop)
                     {
                         currentFrame = 0;
@@ -53,8 +52,10 @@ public class AdvancedSpriteSheetAnimation : MonoBehaviour
                     else
                     {
                         Active = false;
+                        Listeners.ForEach(a => a.FinishedAnimation(currentAnimation, Animations[currentAnimation].Name));
                         return;
                     }
+                    Listeners.ForEach(a => a.FinishedAnimation(currentAnimation, Animations[currentAnimation].Name));
                 }
                 else
                 {
