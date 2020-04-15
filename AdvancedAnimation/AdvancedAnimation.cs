@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 /*
- * Version 3.0.0, 22/03/2020
+ * Version 3.1.1, 15/04/2020
  */
 /// <summary>
 /// AdvancedAnimation allows you to easily add and interact with animations. Basically, you give it
@@ -50,7 +50,24 @@ public class AdvancedAnimation : MonoBehaviour
     [HideInInspector]
     public int GoalStep = 0;
     [HideInInspector]
-    public bool Active = false;
+    public bool Active
+    {
+        get
+        {
+            return active;
+        }
+        set
+        {
+            if (value)
+            {
+                Activate();
+            }
+            else
+            {
+                active = false;
+            }
+        }
+    }
     [HideInInspector]
     public float Count;
     [HideInInspector]
@@ -59,6 +76,7 @@ public class AdvancedAnimation : MonoBehaviour
     public List<IAdvancedAnimationListener> AdvancedAnimationListeners { get; private set; }
     [HideInInspector]
     public bool Ordered = false;
+    private bool active = false;
     private List<Transform> Parts;
     private List<List<Transform>> AnimationParts; //AnimationParts[StepID][PartPointer]
     private List<List<int>> Pointers; //Pointers[StepID][MatchingPartID] = PartPointer ^
