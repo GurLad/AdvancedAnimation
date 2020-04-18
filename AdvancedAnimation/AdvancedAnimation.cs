@@ -272,6 +272,7 @@ public class AdvancedAnimation : MonoBehaviour
                 catch { }
             }
         }
+        Count = 0;
         active = true;
     }
 }
