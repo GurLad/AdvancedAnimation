@@ -143,7 +143,7 @@ public class SpriteSheetData
         float Width = SpriteSheet.rect.width / NumberOfFrames;
         for (int i = 0; i < NumberOfFrames; i++)
         {
-            Frames.Add(Sprite.Create(SpriteSheet.texture, new Rect(Width * i, 0, Width, SpriteSheet.rect.height), new Vector2(0.5f, 0.5f)));
+            Frames.Add(Sprite.Create(SpriteSheet.texture, new Rect(Width * i, 0, Width, SpriteSheet.rect.height), new Vector2(0.5f, 0.5f), SpriteSheet.pixelsPerUnit));
         }
     }
 }
