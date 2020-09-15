@@ -110,6 +110,15 @@ public class AdvancedSpriteSheetAnimation : MonoBehaviour
         renderer.sprite = Animations[currentAnimation].Frames[currentFrame];
     }
     /// <summary>
+    /// Returns whether an animation by the given name exists.
+    /// </summary>
+    /// <param name="animationName">Name of the animation to check.</param>
+    /// <returns>Whether an animation by the given name exists.</returns>
+    public bool HasAnimation(string animationName)
+    {
+        return Animations.Find(a => a.Name == animationName) != null;
+    }
+    /// <summary>
     /// Restarts the current animation.
     /// </summary>
     public void Restart()
