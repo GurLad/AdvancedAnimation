@@ -83,10 +83,7 @@ public class AdvancedAnimation : MonoBehaviour
     private void Awake()
     {
         AdvancedAnimationListeners = new List<IAdvancedAnimationListener>();
-    }
-    // Gets all parts and sets pointers
-    void Start()
-    {
+        // Gets all parts and sets pointers
         if (Main == null)
         {
             if (FindMainByName == "")
@@ -149,6 +146,9 @@ public class AdvancedAnimation : MonoBehaviour
         }
         Debug.Log(ToPrint + "\n---End---\n");
         //End debug
+    }
+    private void Start()
+    {
         if (ActivateOnStart)
         {
             Activate();
@@ -231,18 +231,21 @@ public class AdvancedAnimation : MonoBehaviour
                 PreviousGoal = GoalStep;
                 GoalStep = LoopTo;
             }
-            for (int i = 0; i < Parts.Count; i++)
+            if (AffectActive)
             {
-                try
+                for (int i = 0; i < Parts.Count; i++)
                 {
-                    bool BaseValue = AnimationParts[PreviousStep][Pointers[PreviousStep][i]].gameObject.activeSelf;
-                    bool FinalValue = AnimationParts[NextStep][Pointers[NextStep][i]].gameObject.activeSelf;
-                    if (BaseValue != FinalValue || AffectAll)
+                    try
                     {
-                        Parts[i].gameObject.SetActive(FinalValue);
+                        bool BaseValue = AnimationParts[PreviousStep][Pointers[PreviousStep][i]].gameObject.activeSelf;
+                        bool FinalValue = AnimationParts[NextStep][Pointers[NextStep][i]].gameObject.activeSelf;
+                        if (BaseValue != FinalValue || AffectAll)
+                        {
+                            Parts[i].gameObject.SetActive(FinalValue);
+                        }
                     }
+                    catch { }
                 }
-                catch { }
             }
             AdvancedAnimationListeners.ForEach(AAL => AAL.OnStepChange(NextStep));
         }
@@ -274,6 +277,10 @@ public class AdvancedAnimation : MonoBehaviour
         }
         Count = 0;
         active = true;
+    }
+    public void Deactivate()
+    {
+        Active = false;
     }
 }
 
